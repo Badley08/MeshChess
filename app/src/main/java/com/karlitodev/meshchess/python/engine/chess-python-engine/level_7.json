@@ -1,0 +1,11 @@
+{
+  "id": "level_7",
+  "title": "Mat en 1 — Tour doublée",
+  "description": "Les blancs jouent et matent en un coup avec la tour.",
+  "difficulty": 5,
+  "hint": "La tour peut donner échec et mat sur la dernière rangée.",
+  "startingFen": "3r2k1/5ppp/8/8/8/8/5PPP/3RR1K1 w - - 0 1",
+  "solution": [
+    { "from": "e1", "to": "e8", "promotion": null }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "level_10",
+  "title": "Mat en 1 — Promotion",
+  "description": "Les blancs jouent. Promouvez le pion en capturant pour donner échec et mat.",
+  "difficulty": 8,
+  "hint": "Le pion en e7 peut capturer la dame en d8 et être promu en dame pour donner mat.",
+  "startingFen": "3qk3/4P3/8/8/8/8/8/4K3 w - - 0 1",
+  "solution": [
+    { "from": "e7", "to": "d8", "promotion": "Q" }
+  ]
+}

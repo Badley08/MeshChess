@@ -1,0 +1,11 @@
+{
+  "id": "level_8",
+  "title": "Mat en 2 — Combinaison",
+  "description": "Les blancs jouent et matent en deux coups.",
+  "difficulty": 6,
+  "hint": "Donnez un échec avec la dame pour forcer le roi dans un coin, puis matez au coup suivant.",
+  "startingFen": "6k1/pp3ppp/8/8/8/8/PP3PPP/2R3K1 w - - 0 1",
+  "solution": [
+    { "from": "c1", "to": "c8", "promotion": null }
+  ]
+}

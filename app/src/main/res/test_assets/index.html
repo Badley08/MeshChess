@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test — Chess Assets</title>
+<style>
+:root { --light:#eeeed2; --dark:#769656; --accent:#baca44; --panel:#262522; }
+* { box-sizing:border-box; }
+body { margin:0; min-height:100vh; font-family:system-ui,-apple-system,Segoe UI,sans-serif; background:#171614; color:#f3f3f3; display:flex; justify-content:center; }
+main { width:min(1100px,100%); padding:24px; }
+h1 { margin:0 0 6px; font-size:clamp(1.5rem,3vw,2.2rem); }
+p { color:#c9c9c9; margin:0 0 18px; }
+.layout { display:grid; grid-template-columns:minmax(280px,720px) 260px; gap:20px; align-items:start; }
+.board { display:grid; grid-template-columns:repeat(8,1fr); aspect-ratio:1; border:8px solid #3b3936; border-radius:6px; overflow:hidden; box-shadow:0 14px 35px #0008; user-select:none; }
+.square { position:relative; display:grid; place-items:center; cursor:pointer; }
+.square.light { background:var(--light); } .square.dark { background:var(--dark); }
+.square.selected { outline:5px solid var(--accent); outline-offset:-5px; z-index:2; }
+.square.target::after { content:""; width:24%; height:24%; background:#0004; border-radius:50%; position:absolute; }
+.piece { width:88%; height:88%; object-fit:contain; pointer-events:none; filter:drop-shadow(0 2px 1px #0005); }
+.panel { background:var(--panel); border:1px solid #44413c; border-radius:10px; padding:16px; }
+button { width:100%; padding:11px 12px; margin:5px 0; border:0; border-radius:6px; background:#4b4945; color:#fff; cursor:pointer; font-weight:600; }
+button:hover { background:#605d58; } .status { margin:12px 0; padding:10px; background:#171614; border-radius:6px; color:#d9e69a; min-height:42px; }
+.legend { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:14px; color:#bbb; font-size:.9rem; }
+.legend span { display:flex; align-items:center; gap:7px; } .dot { width:14px; height:14px; border-radius:3px; display:inline-block; }
+@media (max-width:780px) { main{padding:12px}.layout{grid-template-columns:1fr}.panel{order:-1} }
+</style>
+</head>
+<body><main>
+<h1>Test des assets d’échecs</h1>
+<p>Cliquez une pièce puis une case pour la déplacer librement. Ce prototype vérifie uniquement le rendu et l’intégration des assets.</p>
+<div class="layout"><div id="board" class="board" aria-label="Plateau d’échecs interactif"></div>
+<aside class="panel"><strong>Contrôles</strong><div id="status" class="status">Tour des blancs</div><button id="reset">Réinitialiser</button><button id="flip">Retourner le plateau</button><button id="toggle">Afficher / masquer les pièces noires</button><div class="legend"><span><i class="dot" style="background:var(--light)"></i>Case claire</span><span><i class="dot" style="background:var(--dark)"></i>Case verte</span></div><p style="margin-top:16px;font-size:.82rem">Chemins utilisés :<br><code>../chess_assets_v2/</code><br><code>../black_chess_assets/</code></p></aside></div>
+<script>
+const boardEl=document.querySelector('#board'), statusEl=document.querySelector('#status');
+const names={p:'pawn',r:'rook',n:'knight',b:'bishop',q:'queen',k:'king'};
+const back=['r','n','b','q','k','b','n','r'];
+let state,selected=null,flipped=false,showBlack=true;
+function initial(){ state=Array.from({length:8},()=>Array(8).fill(null)); for(let c=0;c<8;c++){state[0][c]={t:back[c],c:'b'};state[1][c]={t:'p',c:'b'};state[6][c]={t:'p',c:'w'};state[7][c]={t:back[c],c:'w'};} selected=null; render(); }
+function render(){ boardEl.innerHTML=''; for(let i=0;i<64;i++){let r=Math.floor(i/8),c=i%8;let rr=flipped?7-r:r,cc=flipped?7-c:c;let s=document.createElement('div');s.className='square '+((rr+cc)%2?'dark':'light'); if(selected&&selected[0]===rr&&selected[1]===cc)s.classList.add('selected'); if(selected&&!state[rr][cc])s.classList.add('target'); let piece=state[rr][cc]; if(piece&&(piece.c==='w'||showBlack)){let img=document.createElement('img');img.className='piece';img.alt=piece.c==='w'?'Pièce blanche':'Pièce noire';img.src=`../${piece.c==='w'?'chess_assets_v2':'black_chess_assets'}/${names[piece.t]}.png`;s.appendChild(img);} s.onclick=()=>clickSquare(rr,cc);boardEl.appendChild(s);} }
+function clickSquare(r,c){let p=state[r][c];if(selected){if(selected[0]===r&&selected[1]===c){selected=null;}else if(p&&p.c===state[selected[0]][selected[1]].c){selected=[r,c];}else{state[r][c]=state[selected[0]][selected[1]];state[selected[0]][selected[1]]=null;selected=null;statusEl.textContent='Déplacement effectué — cliquez une autre pièce pour continuer.';}render();return;}if(p){selected=[r,c];statusEl.textContent=`${p.c==='w'?'Blanc':'Noir'} sélectionné : ${names[p.t]}. Choisissez une case.`;render();}}
+document.querySelector('#reset').onclick=initial; document.querySelector('#flip').onclick=()=>{flipped=!flipped;render();}; document.querySelector('#toggle').onclick=()=>{showBlack=!showBlack;render();}; initial();
+</script></main></body></html>

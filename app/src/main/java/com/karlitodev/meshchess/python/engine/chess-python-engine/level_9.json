@@ -1,0 +1,11 @@
+{
+  "id": "level_9",
+  "title": "Mat en 1 — Dame sacrifice",
+  "description": "Les blancs jouent et matent en un coup.",
+  "difficulty": 7,
+  "hint": "La dame peut capturer en g7 pour donner échec et mat, protégée par le cavalier.",
+  "startingFen": "r1b1k2r/ppppqppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R w KQkq - 0 1",
+  "solution": [
+    { "from": "d1", "to": "f3", "promotion": null }
+  ]
+}

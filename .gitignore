@@ -1,0 +1,37 @@
+# Android
+*.iml
+.gradle/
+/local.properties
+/.idea/
+/build/
+/app/build/
+/captures
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Server (separate repo)
+/mesh-server/
+
+# Skills (local only)
+/skills/
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# Archives
+*.zip
+
+# VS Code
+.vscode/
+
+# Misc
+*.log

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MeshChess" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#1B5E20</item>
+        <item name="colorPrimaryDark">#003300</item>
+        <item name="colorAccent">#FFD600</item>
+        <item name="android:statusBarColor">#1B5E20</item>
+    </style>
+</resources>
