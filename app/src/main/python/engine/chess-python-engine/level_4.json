@@ -1,0 +1,11 @@
+{
+  "id": "level_4",
+  "title": "Mat en 2 — Sacrifice de Dame",
+  "description": "Les blancs jouent. Sacrifiez la dame pour forcer le mat en deux coups.",
+  "difficulty": 3,
+  "hint": "La dame peut donner échec en g7, forçant le roi en h8, puis la dame mate en h7 ou g8.",
+  "startingFen": "r1b1kb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R w KQkq - 0 1",
+  "solution": [
+    { "from": "d1", "to": "f3", "promotion": null }
+  ]
+}

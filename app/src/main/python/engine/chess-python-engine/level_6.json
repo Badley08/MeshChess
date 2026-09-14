@@ -1,0 +1,11 @@
+{
+  "id": "level_6",
+  "title": "Mat en 1 — Fou et Dame",
+  "description": "Les blancs jouent et matent en un coup.",
+  "difficulty": 4,
+  "hint": "La dame peut se placer sur h7 pour donner échec et mat, le fou couvre la fuite.",
+  "startingFen": "r1bq1rk1/pppp1Qpp/2n2n2/2b1p3/2B1P3/8/PPPP1PPP/RNB1K1NR w KQ - 0 1",
+  "solution": [
+    { "from": "f7", "to": "f8", "promotion": null }
+  ]
+}

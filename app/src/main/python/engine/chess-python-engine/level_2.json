@@ -1,0 +1,11 @@
+{
+  "id": "level_2",
+  "title": "Mat en 1 — Tour",
+  "description": "Les blancs jouent et matent en un coup avec la tour.",
+  "difficulty": 2,
+  "hint": "Le roi noir est coincé sur la dernière rangée. La tour peut donner un échec et mat au couloir.",
+  "startingFen": "6k1/5ppp/8/8/8/8/8/R3K3 w Q - 0 1",
+  "solution": [
+    { "from": "a1", "to": "a8", "promotion": null }
+  ]
+}

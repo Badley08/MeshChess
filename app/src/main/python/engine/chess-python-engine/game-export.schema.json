@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "chess-app/game-export.schema.json",
+  "title": "Chess Game Export",
+  "description": "Format for a game exported from the app (finished or in progress). JSON has no comment syntax, so every field is documented here instead via \"description\" — keep this file next to the exporter code as the source of truth for the format.",
+  "type": "object",
+  "required": ["exportDate", "version", "mode", "players", "startingFen", "moves"],
+  "additionalProperties": false,
+  "properties": {
+    "exportDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the export was generated, e.g. \"2026-09-13T14:32:00Z\"."
+    },
+    "version": {
+      "type": "string",
+      "description": "Export format version, e.g. \"1.0\". Bump this whenever the shape of this file changes, so old exports can still be read."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["wifi", "bluetooth", "ai", "online"],
+      "description": "How the game was played: local wifi, bluetooth, versus the built-in AI, or via the online room/quick-match server."
+    },
+    "players": {
+      "type": "object",
+      "required": ["white", "black"],
+      "additionalProperties": false,
+      "description": "The two players, keyed by the color they played.",
+      "properties": {
+        "white": { "$ref": "#/definitions/player" },
+        "black": { "$ref": "#/definitions/player" }
+      }
+    },
+    "result": {
+      "description": "Outcome of the game. Use null if the export happens mid-game (e.g. a manual save).",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["winner", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "winner": {
+              "type": ["string", "null"],
+              "enum": ["white", "black", null],
+              "description": "null for a draw."
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "checkmate",
+                "resignation",
+                "draw_agreement",
+                "stalemate",
+                "insufficient_material",
+                "fifty_move_rule",
+                "threefold_repetition"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "startingFen": {
+      "type": "string",
+      "description": "FEN of the position the game started from. Use the standard starting FEN for a normal game, or a custom FEN if the game began from a puzzle/level position."
+    },
+    "moves": {
+      "type": "array",
+      "description": "Every move played, in order, starting from startingFen.",
+      "items": { "$ref": "#/definitions/move" }
+    }
+  },
+  "definitions": {
+    "player": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["human", "ai"],
+          "description": "Whether this side was played by a person or the AI."
+        }
+      }
+    },
+    "move": {
+      "type": "object",
+      "required": ["from", "to", "piece", "color"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "type": "string", "pattern": "^[a-h][1-8]$" },
+        "to": { "type": "string", "pattern": "^[a-h][1-8]$" },
+        "piece": {
+          "type": "string",
+          "enum": ["P", "N", "B", "R", "Q", "K"],
+          "description": "The piece that moved, using its type letter (P=pawn, N=knight, B=bishop, R=rook, Q=queen, K=king) — not the piece it became after promotion."
+        },
+        "color": { "type": "string", "enum": ["w", "b"] },
+        "promotion": {
+          "type": ["string", "null"],
+          "enum": ["Q", "R", "B", "N", null],
+          "description": "Set only when a pawn promotes; the piece it promoted to."
+        },
+        "isCastle": {
+          "type": ["string", "null"],
+          "enum": ["K", "Q", null],
+          "description": "\"K\" for kingside castling, \"Q\" for queenside, null otherwise."
+        },
+        "isEnPassant": { "type": "boolean" },
+        "captured": {
+          "type": ["string", "null"],
+          "enum": ["P", "N", "B", "R", "Q", null],
+          "description": "The piece type captured by this move, or null if it wasn't a capture."
+        },
+        "fen": {
+          "type": "string",
+          "description": "Optional: the resulting FEN right after this move. Lets a viewer jump to any point in the game without replaying every move from the start."
+        }
+      }
+    }
+  }
+}
