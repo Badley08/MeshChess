@@ -37,4 +37,12 @@ class SettingsManager(context: Context) {
     fun saveAIDifficulty(difficulty: String) {
         prefs.edit().putString("ai_difficulty", difficulty).apply()
     }
+
+    fun getGitHubToken(): String? {
+        return prefs.getString("github_token", null)
+    }
+
+    fun saveGitHubToken(token: String) {
+        prefs.edit().putString("github_token", token).apply()
+    }
 }

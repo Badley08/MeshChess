@@ -357,6 +357,24 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // GitHub Token (for Private Repo Updates)
+        var githubToken by remember { mutableStateOf(settingsManager.getGitHubToken() ?: "") }
+        Text(strings["github_token_label"] ?: "GitHub Token (PAT - Private Repo)", color = Color.LightGray)
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = githubToken,
+            onValueChange = { githubToken = it; settingsManager.saveGitHubToken(it) },
+            label = { Text("GitHub Token (ghp_...)", color = Color.Gray) },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White, unfocusedTextColor = Color.White,
+                focusedBorderColor = BlueTop, unfocusedBorderColor = Color.Gray, cursorColor = BlueTop
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(32.dp))
 
         // Update button
@@ -364,7 +382,7 @@ fun SettingsScreen(
             text = strings["check_updates"] ?: "Check for Updates",
             iconRes = R.drawable.ic_update,
             isGreen = false,
-            onClick = { GitHubUpdater(context).checkForUpdates() }
+            onClick = { GitHubUpdater(context, githubToken).checkForUpdates() }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
