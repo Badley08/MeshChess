@@ -6,6 +6,9 @@ on:
       - "v*"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,28 +46,19 @@ jobs:
           cd app/src/main/java/com/karlitodev/meshchess/python/engine/chess-python-engine
           python3 validate_levels.py level_*.json
 
-      - name: Build release APK
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
-        continue-on-error: true
-
-      - name: Build debug APK (fallback if release fails without keystore)
-        if: failure()
+      - name: Build debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: meshchess-release-apk
-          path: |
-            app/build/outputs/apk/release/*.apk
-            app/build/outputs/apk/debug/*.apk
-          if-no-files-found: warn
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            app/build/outputs/apk/release/*.apk
-            app/build/outputs/apk/debug/*.apk
+          files: app/build/outputs/apk/debug/*.apk
           generate_release_notes: true
