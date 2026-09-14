@@ -122,7 +122,7 @@ fun WelcomePage(onNext: () -> Unit) {
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(48.dp))
-        GlossyButton(text = "GET STARTED", icon = "🚀", isGreen = true, onClick = onNext)
+        GlossyButton(text = "GET STARTED", iconRes = R.drawable.ic_rocket, isGreen = true, onClick = onNext)
     }
 }
 
@@ -146,19 +146,19 @@ fun LanguagePage(
         )
         Spacer(modifier = Modifier.height(48.dp))
         
-        LanguageOption("en", "English", "🇬🇧", selectedLang == "en") { onLangSelected("en") }
+        LanguageOption("en", "English", selectedLang == "en") { onLangSelected("en") }
         Spacer(modifier = Modifier.height(16.dp))
-        LanguageOption("fr", "Français", "🇫🇷", selectedLang == "fr") { onLangSelected("fr") }
+        LanguageOption("fr", "Français", selectedLang == "fr") { onLangSelected("fr") }
         Spacer(modifier = Modifier.height(16.dp))
-        LanguageOption("es", "Español", "🇪🇸", selectedLang == "es") { onLangSelected("es") }
+        LanguageOption("es", "Español", selectedLang == "es") { onLangSelected("es") }
         
         Spacer(modifier = Modifier.height(48.dp))
-        GlossyButton(text = "CONTINUE", icon = "➡️", isGreen = true, onClick = onNext)
+        GlossyButton(text = "CONTINUE", iconRes = R.drawable.ic_arrow_forward, isGreen = true, onClick = onNext)
     }
 }
 
 @Composable
-fun LanguageOption(code: String, name: String, flag: String, isSelected: Boolean, onClick: () -> Unit) {
+fun LanguageOption(code: String, name: String, isSelected: Boolean, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().height(64.dp),
         shape = RoundedCornerShape(12.dp),
@@ -171,7 +171,20 @@ fun LanguageOption(code: String, name: String, flag: String, isSelected: Boolean
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = flag, fontSize = 24.sp)
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = code.uppercase(),
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Text(text = name, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
@@ -229,6 +242,6 @@ fun ApiKeyPage(
         )
         
         Spacer(modifier = Modifier.height(48.dp))
-        GlossyButton(text = "FINISH SETUP", icon = "🎉", isGreen = true, onClick = onComplete)
+        GlossyButton(text = "FINISH SETUP", iconRes = R.drawable.ic_celebrate, isGreen = true, onClick = onComplete)
     }
 }
