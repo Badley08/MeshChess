@@ -1,44 +1,51 @@
-# MESHCHESS
+# MeshChess
 
-- A chess game that runs over Bluetooth or WiFi Mesh Network.
+<p align="center">
+  <img src="app/src/main/res/drawable/app_logo.xml" alt="MeshChess Logo" width="100"/>
+</p>
 
-- For Android Only.
+**MeshChess** is an innovative, peer-to-peer (Mesh) and online chess game created by **Luberisse Karl Brad (Karlito)**. Designed initially for Android, the game now also supports a desktop terminal version.
 
-- I want to use Python's logic for the game logic and engine, because it is more easy to me to understand and implement it and i'll make me use less code and less time to develop it unlike if i was to use Kotlin.
+## 🚀 Features
 
-- The app should adapt to the phone's language setting.
-- The app should be playable in 4 modes :
-- Solo Mode :
-    - Play against the AI.
-- Online Mode :
-    - P2P Multiplayer
-- Offline Mode :
-    - Hotseat
-- Mesh Network Mode
+### Cross-Platform Play
+- **Android App**: Play seamlessly on your smartphone with a beautiful Jetpack Compose UI.
+- **Desktop / Terminal PC**: Play a local game on your computer by simply running `Main.py`. No external dependencies are required.
 
-# Features
-- Possibilité de jouer avec des IA comme:
-- ChatGPT
-- Claude
-- Gemini
-- DeepSeek
-- Qwen
+### 🌐 Multiple Game Modes
+- **Solo Mode**: Play against powerful AI models (ChatGPT, Claude, Gemini, DeepSeek, Qwen). *Note: Requires internet and your own API key.*
+- **Online Mode**: Real-time multiplayer using a personal WebSocket server hosted on Railway.
+- **Mesh Network Mode**: Play over Bluetooth or WiFi Mesh, perfect for areas with no internet connection.
+- **Offline / Hotseat**: Pass and play on the same device.
 
-**Pour jouer avec une IA, il faut etre connectée à internet et posséder une clé API pour l'IA que vous voulez utiliser.**
+### 🔄 Advanced Functionality
+- **GitHub Auto-Updater**: The Android app can automatically detect, download, and install new updates directly from the GitHub releases page.
+- **Save & Replay**: Export your games (including AI matches) in `.json` format and import them later to analyze or replay.
+- **QR Code Sharing**: Share a match instantly with a friend by scanning a QR Code (in P2P mode).
+- **Multilingual Support**: Fully localized in French (FR), English (EN), and Spanish (ES). The app automatically adapts or lets you choose your language at launch.
 
-- Possibilité d'exporter une partie en .json et de l'importer pour la rejouer ou analyser plus tard.
-** Possibilite de meme exporter les parties jouées avec une IA et de les rejouer plus tard avec ce meme IA ou avec une autre IA.**
+## 🛠️ Architecture
 
--Partage de parties avec des amis en QR Code.
-**La fonctionnalité est directement dans le mode P2P Multiplayer**
+- **Engine**: The core chess logic is written entirely in **Python** (`chess_rules.py`) for simplicity and efficiency. 
+- **Android Integration**: The Python engine is embedded seamlessly into the Android Kotlin app using **Chaquopy**.
+- **Server**: The online mode relies on a WebSocket server located in the `mesh-server` directory (`https://meshchess-server-production.up.railway.app`).
 
-# ONLINE MODE
-- Utilisation d'un serveur personnel hebergé chez railway.app pour les communications entre les joueurs et les moves.
-**Les joueurs doivent avoir une connexion internet pour jouer en mode Online.**
+## 💻 How to play on PC
 
-**Le serveur est dispo dans cette emplacement:[/home/luberisse/Bureau/MeshChess/mesh-server]
+Ensure you have Python 3 installed. Navigate to the project root and run:
 
-**Pour eviter des problemes avec le systeme android il faut demander les autorisations des l'ouverture de l'app:
-acces au ```bluetooth``` et ```wifi```.
+```bash
+python3 app/src/main/java/com/karlitodev/meshchess/python/Main.py
+```
 
-Je veux la possibiilitee de pouvoir importer les parties en ```JSON``` pour y rejouer.
+## 📱 Permissions
+To ensure smooth gameplay and features, the Android app requests the following permissions on launch:
+- `Bluetooth` & `WiFi`: For Mesh networking and P2P matches.
+- `Camera`: For QR Code scanning.
+- `Internet`: For Online play and AI integrations.
+- `Request Install Packages`: For the GitHub auto-updater to work.
+
+## 👨‍💻 About the Creator
+**Creator:** Luberisse Karl Brad (Alias: Karlito)
+**Age:** 17
+*Grand fan d'anime, webtoon, manga, manhuas et manhwa et aime aussi la culture asiatique.*

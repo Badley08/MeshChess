@@ -1,0 +1,11 @@
+{
+  "id": "level_5",
+  "title": "Mat en 1 — Cavalier",
+  "description": "Les blancs jouent et matent en un coup avec le cavalier.",
+  "difficulty": 4,
+  "hint": "Le cavalier peut sauter en f7 pour donner un mat étouffé.",
+  "startingFen": "r4rk1/ppp2pNp/8/8/8/8/PPP2PPP/R4RK1 w - - 0 1",
+  "solution": [
+    { "from": "g7", "to": "h5", "promotion": null }
+  ]
+}
