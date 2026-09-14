@@ -1,9 +1,63 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- App Icon Background: Sleek Dark Emerald Squircle -->
     <path
-        android:fillColor="#FF1B5E20"
-        android:pathData="M19,22H5v-2h14V22z M17,18H7v-1.5c0,-0.83 0.67,-1.5 1.5,-1.5h7.5c0.83,0 1.5,0.67 1.5,1.5V18z M12,2L9,7h6L12,2z M10,8h4v6h-4V8z"/>
+        android:fillColor="#0A2E1B"
+        android:pathData="M 24,12 L 84,12 C 90.627,12 96,17.373 96,24 L 96,84 C 96,90.627 90.627,96 84,96 L 24,96 C 17.373,96 12,90.627 12,84 L 12,24 C 12,17.373 17.373,12 24,12 Z" />
+
+    <!-- Secondary Accent Layer: Glowing Emerald Radial Highlight -->
+    <path
+        android:fillColor="#15803D"
+        android:pathData="M 54,20 C 72.778,20 88,35.222 88,54 C 88,72.778 72.778,88 54,88 C 35.222,88 20,72.778 20,54 C 20,35.222 35.222,20 54,20 Z" />
+
+    <path
+        android:fillColor="#166534"
+        android:pathData="M 54,26 C 69.464,26 82,38.536 82,54 C 82,69.464 69.464,82 54,82 C 38.536,82 26,69.464 26,54 C 26,38.536 38.536,26 54,26 Z" />
+
+    <!-- Chessboard Mini Grid Elements -->
+    <path
+        android:fillColor="#052E16"
+        android:pathData="M 36,36 H 54 V 54 H 36 Z" />
+    <path
+        android:fillColor="#052E16"
+        android:pathData="M 54,54 H 72 V 72 H 54 Z" />
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M 54,36 H 72 V 54 H 54 Z" />
+    <path
+        android:fillColor="#34D399"
+        android:pathData="M 36,54 H 54 V 72 H 36 Z" />
+
+    <!-- Mesh Network Connections: Node Lines -->
+    <path
+        android:strokeColor="#FDE047"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M 30,30 L 54,45 L 78,30 M 54,45 L 54,78 M 30,78 L 54,63 L 78,78" />
+
+    <!-- Mesh Network Nodes -->
+    <path android:fillColor="#FACC15" android:pathData="M 30,30 m -3.5,0 a 3.5,3.5 0 1,1 7,0 a 3.5,3.5 0 1,1 -7,0" />
+    <path android:fillColor="#FACC15" android:pathData="M 78,30 m -3.5,0 a 3.5,3.5 0 1,1 7,0 a 3.5,3.5 0 1,1 -7,0" />
+    <path android:fillColor="#FACC15" android:pathData="M 30,78 m -3.5,0 a 3.5,3.5 0 1,1 7,0 a 3.5,3.5 0 1,1 -7,0" />
+    <path android:fillColor="#FACC15" android:pathData="M 78,78 m -3.5,0 a 3.5,3.5 0 1,1 7,0 a 3.5,3.5 0 1,1 -7,0" />
+    <path android:fillColor="#FEF08A" android:pathData="M 54,45 m -4.5,0 a 4.5,4.5 0 1,1 9,0 a 4.5,4.5 0 1,1 -9,0" />
+
+    <!-- Stylized Golden Chess Knight Silhouette -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 44,76 H 64 V 72 C 64,72 61,70 60,68 C 65,65 67,60 66,54 C 65,49 61,45 61,45 C 61,45 64,41 62,37 C 60,33 55,32 52,32 C 49,32 46,34 44,37 C 42,40 43,43 43,43 C 43,43 40,45 40,49 C 40,53 43,56 46,57 C 45,61 44,68 44,72 Z" />
+
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M 46,74 H 62 V 71 C 62,69.5 59.5,68 58.5,66.5 C 63,63.5 64.5,59 63.5,53.5 C 62.5,49 59,45.5 59,45.5 C 59,45.5 61.5,42 60,38.5 C 58.5,35 54,34 51.5,34 C 49,34 46.5,35.5 45,38 C 43.5,40.5 44.5,43 44.5,43 C 44.5,43 42,44.8 42,48.5 C 42,52 44.5,54.5 47,55.5 C 46,59 46,65 46,71 Z" />
+
+    <!-- Knight Details: Eye Accent -->
+    <path
+        android:fillColor="#052E16"
+        android:pathData="M 53,40 a 1.5,1.5 0 1,0 0.001,0 Z" />
+
 </vector>
