@@ -10,6 +10,8 @@ object EnglishUI {
         "language" to "Language",
         "auto_update" to "Auto-Update",
         "check_updates" to "Check for Updates",
+        "promote_pawn" to "Pawn Promotion",
+        "ai_difficulty_label" to "Gemini AI Difficulty",
         "app_description" to "Mesh/peer-to-peer chess game created by Karlito. Play locally, via Bluetooth, WiFi, or online. Designed for seamless multiplayer experience.",
         "creator_bio" to "Created by Luberisse Karl Brad (Karlito), 17 years old. Huge fan of anime, webtoons, manga, manhuas, manhwa and Asian culture."
     )

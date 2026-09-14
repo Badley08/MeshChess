@@ -29,4 +29,12 @@ class SettingsManager(context: Context) {
     fun saveGeminiApiKey(key: String) {
         prefs.edit().putString("gemini_api_key", key).apply()
     }
+
+    fun getAIDifficulty(): String {
+        return prefs.getString("ai_difficulty", "medium") ?: "medium"
+    }
+
+    fun saveAIDifficulty(difficulty: String) {
+        prefs.edit().putString("ai_difficulty", difficulty).apply()
+    }
 }

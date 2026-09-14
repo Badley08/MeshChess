@@ -15,7 +15,8 @@ data class UIState(
     val legalMovesForSelected: List<ChessMove> = emptyList(),
     val selectedSquare: Pos? = null,
     val isVsAI: Boolean = false,
-    val aiIsThinking: Boolean = false
+    val aiIsThinking: Boolean = false,
+    val pendingPromotionFromTo: Pair<Pos, Pos>? = null
 )
 
 class GameViewModel : ViewModel() {
@@ -32,7 +33,11 @@ class GameViewModel : ViewModel() {
         _uiState.value = buildUIState()
     }
 
-    private fun buildUIState(selected: Pos? = null, aiThinking: Boolean = false): UIState {
+    private fun buildUIState(
+        selected: Pos? = null,
+        aiThinking: Boolean = false,
+        pendingPromo: Pair<Pos, Pos>? = null
+    ): UIState {
         val boardCopy = Array(8) { r -> Array(8) { c -> engine.board[r][c] } }
         val moves = if (selected != null) engine.legalMovesFrom(selected.file, selected.rank) else emptyList()
         return UIState(
@@ -42,12 +47,13 @@ class GameViewModel : ViewModel() {
             legalMovesForSelected = moves,
             selectedSquare = selected,
             isVsAI = isVsAI,
-            aiIsThinking = aiThinking
+            aiIsThinking = aiThinking,
+            pendingPromotionFromTo = pendingPromo
         )
     }
 
     fun onSquareClicked(f: Int, r: Int) {
-        if (_uiState.value.aiIsThinking) return
+        if (_uiState.value.aiIsThinking || _uiState.value.pendingPromotionFromTo != null) return
         if (isVsAI && engine.turn == 'b') return // Block user input when it's AI's turn
 
         val currentSelected = _uiState.value.selectedSquare
@@ -57,9 +63,16 @@ class GameViewModel : ViewModel() {
                 return
             }
 
-            val move = _uiState.value.legalMovesForSelected.find { it.to.file == f && it.to.rank == r }
-            if (move != null) {
-                engine.applyMove(move)
+            val matchingMoves = _uiState.value.legalMovesForSelected.filter { it.to.file == f && it.to.rank == r }
+            if (matchingMoves.isNotEmpty()) {
+                val hasPromotion = matchingMoves.any { it.promotion != null }
+                if (hasPromotion) {
+                    // Show promotion dialog for player to choose piece
+                    _uiState.value = buildUIState(selected = currentSelected, pendingPromo = Pair(currentSelected, Pos(f, r)))
+                    return
+                }
+
+                engine.applyMove(matchingMoves.first())
                 _uiState.value = buildUIState(null)
                 
                 if (isVsAI && !engine.getStatus().gameOver) {
@@ -74,6 +87,21 @@ class GameViewModel : ViewModel() {
             _uiState.value = buildUIState(Pos(f, r))
         } else {
             _uiState.value = buildUIState(null)
+        }
+    }
+
+    fun onPromotionSelected(promoPiece: Char) {
+        val pending = _uiState.value.pendingPromotionFromTo ?: return
+        val move = engine.legalMovesFrom(pending.first.file, pending.first.rank).find {
+            it.to == pending.second && it.promotion == promoPiece
+        }
+        if (move != null) {
+            engine.applyMove(move)
+        }
+        _uiState.value = buildUIState(null)
+
+        if (isVsAI && !engine.getStatus().gameOver) {
+            triggerAIMove()
         }
     }
     

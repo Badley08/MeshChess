@@ -102,9 +102,10 @@ class MainActivity : ComponentActivity() {
                     composable("game_ai") {
                         val vm: GameViewModel = viewModel()
                         val apiKey = settingsManager.getGeminiApiKey()
+                        val difficulty = settingsManager.getAIDifficulty()
                         LaunchedEffect(Unit) {
                             if (!apiKey.isNullOrBlank()) {
-                                vm.setGeminiAgent(GeminiAgent(apiKey, selectedLang))
+                                vm.setGeminiAgent(GeminiAgent(apiKey, selectedLang, difficulty))
                             }
                         }
                         if (apiKey.isNullOrBlank()) {
@@ -316,7 +317,30 @@ fun SettingsScreen(
             FilterChip(selected = currentLang == "es", onClick = { onLangChange("es") }, label = { Text("ES") })
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // AI Difficulty
+        var aiDifficulty by remember { mutableStateOf(settingsManager.getAIDifficulty()) }
+        Text(strings["ai_difficulty_label"] ?: "Gemini AI Difficulty", color = Color.LightGray)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 8.dp)) {
+            FilterChip(
+                selected = aiDifficulty == "easy",
+                onClick = { aiDifficulty = "easy"; settingsManager.saveAIDifficulty("easy") },
+                label = { Text("Easy") }
+            )
+            FilterChip(
+                selected = aiDifficulty == "medium",
+                onClick = { aiDifficulty = "medium"; settingsManager.saveAIDifficulty("medium") },
+                label = { Text("Medium") }
+            )
+            FilterChip(
+                selected = aiDifficulty == "hard",
+                onClick = { aiDifficulty = "hard"; settingsManager.saveAIDifficulty("hard") },
+                label = { Text("Hard") }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // API Key
         Text(strings["api_key_label"] ?: "Gemini API Key", color = Color.LightGray)
@@ -416,6 +440,53 @@ fun GameScreen(viewModel: GameViewModel, strings: Map<String, String>, isLocalMu
     val isFlipped = isLocalMultiplayer && uiState.turn == 'b'
     val boardRotation = if (isFlipped) 180f else 0f
 
+    // Pawn Promotion Dialog
+    if (uiState.pendingPromotionFromTo != null) {
+        AlertDialog(
+            onDismissRequest = { /* forces player choice */ },
+            title = {
+                Text(
+                    strings["promote_pawn"] ?: "Pawn Promotion",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val turnCol = uiState.turn
+                    val promoOptions = listOf(
+                        'Q' to (if (turnCol == 'w') "♕" else "♛"),
+                        'R' to (if (turnCol == 'w') "♖" else "♜"),
+                        'B' to (if (turnCol == 'w') "♗" else "♝"),
+                        'N' to (if (turnCol == 'w') "♘" else "♞")
+                    )
+                    for ((code, symbol) in promoOptions) {
+                        Card(
+                            modifier = Modifier
+                                .size(58.dp)
+                                .clickable { viewModel.onPromotionSelected(code) },
+                            colors = CardDefaults.cardColors(containerColor = BlueTop),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(symbol, fontSize = 32.sp, color = Color.White)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            containerColor = BgTealDark
+        )
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().background(BgTealDark),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -433,13 +504,19 @@ fun GameScreen(viewModel: GameViewModel, strings: Map<String, String>, isLocalMu
         )
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Chessboard
-        Box(
-            modifier = Modifier.padding(16.dp).border(4.dp, WoodLight).background(Color.White).rotate(boardRotation)
+        // Large Responsive Chessboard
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .aspectRatio(1f)
+                .border(4.dp, WoodLight)
+                .background(WoodDark)
+                .rotate(boardRotation)
         ) {
-            Column {
+            val squareSize = maxWidth / 8
+            Column(modifier = Modifier.fillMaxSize()) {
                 for (r in 7 downTo 0) {
-                    Row {
+                    Row(modifier = Modifier.fillMaxWidth().height(squareSize)) {
                         for (f in 0..7) {
                             val isDark = (r + f) % 2 == 0
                             val bgColor = if (isDark) Color(0xFF769656) else Color(0xFFEEEED2)
@@ -447,24 +524,54 @@ fun GameScreen(viewModel: GameViewModel, strings: Map<String, String>, isLocalMu
                             val isMoveTarget = uiState.legalMovesForSelected.any { it.to.file == f && it.to.rank == r }
                             val finalBgColor = when {
                                 isSelected -> Color(0xFFF6F669)
-                                isMoveTarget -> Color(0xFFD42C2C).copy(alpha = 0.5f)
+                                isMoveTarget -> Color(0xFFD42C2C).copy(alpha = 0.55f)
                                 else -> bgColor
                             }
                             Box(
-                                modifier = Modifier.size(44.dp).background(finalBgColor)
+                                modifier = Modifier
+                                    .width(squareSize)
+                                    .height(squareSize)
+                                    .background(finalBgColor)
                                     .clickable { viewModel.onSquareClicked(f, r) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 val piece = uiState.board[r][f]
                                 if (piece != null) {
-                                    Text(
-                                        unicodePieces[piece] ?: "", fontSize = 32.sp,
-                                        color = if (piece[0] == 'w') Color.White else Color.Black,
-                                        modifier = Modifier.rotate(if (isFlipped) 180f else 0f)
-                                    )
+                                    val isWhitePiece = piece[0] == 'w'
+                                    if (isWhitePiece) {
+                                        // High contrast backdrop pill/badge for white pieces on light squares
+                                        Box(
+                                            modifier = Modifier
+                                                .size(squareSize * 0.82f)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFF262626).copy(alpha = 0.45f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = unicodePieces[piece] ?: "",
+                                                fontSize = (squareSize.value * 0.65f).sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                color = Color.White,
+                                                modifier = Modifier.rotate(if (isFlipped) 180f else 0f)
+                                            )
+                                        }
+                                    } else {
+                                        Text(
+                                            text = unicodePieces[piece] ?: "",
+                                            fontSize = (squareSize.value * 0.68f).sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF111111),
+                                            modifier = Modifier.rotate(if (isFlipped) 180f else 0f)
+                                        )
+                                    }
                                 }
                                 if (isMoveTarget && piece == null) {
-                                    Box(Modifier.size(12.dp).clip(RoundedCornerShape(50)).background(Color.Black.copy(alpha = 0.2f)))
+                                    Box(
+                                        modifier = Modifier
+                                            .size(squareSize * 0.32f)
+                                            .clip(CircleShape)
+                                            .background(Color.Black.copy(alpha = 0.3f))
+                                    )
                                 }
                             }
                         }
