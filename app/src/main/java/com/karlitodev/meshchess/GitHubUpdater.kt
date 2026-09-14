@@ -19,7 +19,7 @@ import org.json.JSONObject
 class GitHubUpdater(private val context: Context) {
     private val client = OkHttpClient()
     private val scope = CoroutineScope(Dispatchers.IO)
-    private val GITHUB_REPO = "luberisse/MeshChess" // Assume this repo for now
+    private val GITHUB_REPO = "Badley08/MeshChess" // Assume this repo for now
 
     fun checkForUpdates() {
         Toast.makeText(context, "Checking for updates...", Toast.LENGTH_SHORT).show()
