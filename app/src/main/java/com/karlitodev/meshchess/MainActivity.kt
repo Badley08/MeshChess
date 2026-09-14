@@ -370,7 +370,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // App version
-        Text("v1.0.3", color = Color.Gray, fontSize = 12.sp)
+        Text("v1.0.4", color = Color.Gray, fontSize = 12.sp)
     }
 }
 
