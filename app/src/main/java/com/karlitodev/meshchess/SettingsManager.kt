@@ -11,6 +11,22 @@ class SettingsManager(context: Context) {
     }
 
     fun getLanguage(): String {
-        return prefs.getString("language", "fr") ?: "fr"
+        return prefs.getString("language", "en") ?: "en"
+    }
+
+    fun isFirstLaunch(): Boolean {
+        return prefs.getBoolean("first_launch", true)
+    }
+
+    fun setFirstLaunchCompleted() {
+        prefs.edit().putBoolean("first_launch", false).apply()
+    }
+
+    fun getGeminiApiKey(): String? {
+        return prefs.getString("gemini_api_key", null)
+    }
+
+    fun saveGeminiApiKey(key: String) {
+        prefs.edit().putString("gemini_api_key", key).apply()
     }
 }

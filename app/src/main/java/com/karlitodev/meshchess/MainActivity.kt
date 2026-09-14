@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,9 +33,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.karlitodev.meshchess.engine.GameViewModel
+import com.karlitodev.meshchess.engine.GeminiAgent
 import com.karlitodev.meshchess.language.en.EnglishUI
 import com.karlitodev.meshchess.language.es.EspagnolUI
 import com.karlitodev.meshchess.language.fr.FrenchUI
+import com.karlitodev.meshchess.ui.OnboardingScreen
 
 // Skeuomorphic Theme Colors
 val BgTealLight = Color(0xFF0F4A4A)
@@ -58,26 +61,76 @@ class MainActivity : ComponentActivity() {
 
             MaterialTheme {
                 val navController = rememberNavController()
+                val startDest = if (settingsManager.isFirstLaunch()) "onboarding" else "menu"
 
-                NavHost(navController = navController, startDestination = "menu") {
+                NavHost(navController = navController, startDestination = startDest) {
+                    composable("onboarding") {
+                        OnboardingScreen(
+                            settingsManager = settingsManager,
+                            onComplete = {
+                                selectedLang = settingsManager.getLanguage() // Refresh language
+                                navController.navigate("menu") {
+                                    popUpTo("onboarding") { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+                    
                     composable("menu") {
                         MenuScreen(
                             strings = strings,
                             onPlayLocal = { navController.navigate("game_local") },
+                            onPlayAI = { navController.navigate("game_ai") },
                             onSettings = { navController.navigate("settings") }
                         )
                     }
+                    
                     composable("game_local") {
                         val viewModel: GameViewModel = viewModel()
+                        LaunchedEffect(Unit) { viewModel.setGeminiAgent(null) }
                         GameScreen(
                             viewModel = viewModel,
                             strings = strings,
+                            isLocalMultiplayer = true,
                             onBack = { navController.popBackStack() }
                         )
                     }
+                    
+                    composable("game_ai") {
+                        val viewModel: GameViewModel = viewModel()
+                        val apiKey = settingsManager.getGeminiApiKey()
+                        
+                        LaunchedEffect(Unit) {
+                            if (!apiKey.isNullOrBlank()) {
+                                viewModel.setGeminiAgent(GeminiAgent(apiKey, selectedLang))
+                            }
+                        }
+                        
+                        if (apiKey.isNullOrBlank()) {
+                            // Needs API Key
+                            Box(modifier = Modifier.fillMaxSize().background(BgTealDark), contentAlignment = Alignment.Center) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text("Gemini API Key Required", color = Color.White, fontSize = 20.sp)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Button(onClick = { navController.navigate("settings") }) {
+                                        Text("Go to Settings")
+                                    }
+                                }
+                            }
+                        } else {
+                            GameScreen(
+                                viewModel = viewModel,
+                                strings = strings,
+                                isLocalMultiplayer = false,
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
+                    }
+                    
                     composable("settings") {
                         SettingsScreen(
                             strings = strings,
+                            settingsManager = settingsManager,
                             currentLang = selectedLang,
                             onLangChange = {
                                 selectedLang = it
@@ -93,7 +146,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MenuScreen(strings: Map<String, String>, onPlayLocal: () -> Unit, onSettings: () -> Unit) {
+fun MenuScreen(strings: Map<String, String>, onPlayLocal: () -> Unit, onPlayAI: () -> Unit, onSettings: () -> Unit) {
     val bgBrush = Brush.radialGradient(
         colors = listOf(BgTealLight, BgTealDark),
         radius = 1500f
@@ -169,7 +222,7 @@ fun MenuScreen(strings: Map<String, String>, onPlayLocal: () -> Unit, onSettings
                 text = "PLAY VS COMPUTER",
                 icon = "🤖",
                 isGreen = true,
-                onClick = { /* TODO */ }
+                onClick = onPlayAI
             )
             Spacer(modifier = Modifier.height(16.dp))
             GlossyButton(
@@ -234,11 +287,14 @@ fun GlossyButton(text: String, icon: String, isGreen: Boolean, onClick: () -> Un
 @Composable
 fun SettingsScreen(
     strings: Map<String, String>,
+    settingsManager: SettingsManager,
     currentLang: String,
     onLangChange: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    var apiKey by remember { mutableStateOf(settingsManager.getGeminiApiKey() ?: "") }
+    
     Column(
         modifier = Modifier.fillMaxSize().background(BgTealDark).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -257,6 +313,25 @@ fun SettingsScreen(
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+        
+        OutlinedTextField(
+            value = apiKey,
+            onValueChange = { 
+                apiKey = it
+                settingsManager.saveGeminiApiKey(it)
+            },
+            label = { Text("Gemini API Key", color = Color.White) },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedBorderColor = Color(0xFF4AC4E7),
+                unfocusedBorderColor = Color.Gray
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = { GitHubUpdater(context).checkForUpdates() },
             colors = ButtonDefaults.buttonColors(containerColor = RibbonRed)
@@ -267,52 +342,74 @@ fun SettingsScreen(
 }
 
 @Composable
-fun GameScreen(viewModel: GameViewModel, strings: Map<String, String>, onBack: () -> Unit) {
+fun GameScreen(viewModel: GameViewModel, strings: Map<String, String>, isLocalMultiplayer: Boolean, onBack: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val unicodePieces = mapOf(
         "wK" to "♔", "wQ" to "♕", "wR" to "♖", "wB" to "♗", "wN" to "♘", "wP" to "♙",
         "bK" to "♚", "bQ" to "♛", "bR" to "♜", "bB" to "♝", "bN" to "♞", "bP" to "♟"
     )
 
+    // Flip the board if it's local multiplayer and it's Black's turn
+    val isFlipped = isLocalMultiplayer && uiState.turn == 'b'
+    val boardRotation = if (isFlipped) 180f else 0f
+
     Column(modifier = Modifier.fillMaxSize().background(BgTealDark), horizontalAlignment = Alignment.CenterHorizontally) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.Start) {
             TextButton(onClick = onBack) { Text("← Quit", color = Color.White) }
         }
         
+        val turnText = if (uiState.turn == 'w') "White's Turn" else "Black's Turn"
         Text(
-            text = if (uiState.turn == 'w') "White's Turn" else "Black's Turn",
-            color = Color.White,
+            text = if (uiState.aiIsThinking) "AI is thinking..." else turnText,
+            color = if (uiState.aiIsThinking) Color(0xFF4AC4E7) else Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Column(modifier = Modifier.padding(16.dp).border(4.dp, WoodLight).background(Color.White)) {
-            for (r in 7 downTo 0) {
-                Row {
-                    for (f in 0..7) {
-                        val isDark = (r + f) % 2 == 0
-                        val bgColor = if (isDark) Color(0xFF769656) else Color(0xFFEEEED2)
-                        
-                        val isSelected = uiState.selectedSquare?.file == f && uiState.selectedSquare?.rank == r
-                        val isMoveTarget = uiState.legalMovesForSelected.any { it.to.file == f && it.to.rank == r }
-                        
-                        val finalBgColor = when {
-                            isSelected -> Color(0xFFF6F669)
-                            isMoveTarget -> Color(0xFFD42C2C).copy(alpha = 0.5f)
-                            else -> bgColor
-                        }
-
-                        Box(
-                            modifier = Modifier.size(44.dp).background(finalBgColor).clickable { viewModel.onSquareClicked(f, r) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val piece = uiState.board[r][f]
-                            if (piece != null) {
-                                Text(text = unicodePieces[piece] ?: "", fontSize = 32.sp, color = if (piece[0] == 'w') Color.White else Color.Black)
+        // Chessboard container
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .border(4.dp, WoodLight)
+                .background(Color.White)
+                .rotate(boardRotation)
+        ) {
+            Column {
+                for (r in 7 downTo 0) {
+                    Row {
+                        for (f in 0..7) {
+                            val isDark = (r + f) % 2 == 0
+                            val bgColor = if (isDark) Color(0xFF769656) else Color(0xFFEEEED2)
+                            
+                            val isSelected = uiState.selectedSquare?.file == f && uiState.selectedSquare?.rank == r
+                            val isMoveTarget = uiState.legalMovesForSelected.any { it.to.file == f && it.to.rank == r }
+                            
+                            val finalBgColor = when {
+                                isSelected -> Color(0xFFF6F669)
+                                isMoveTarget -> Color(0xFFD42C2C).copy(alpha = 0.5f)
+                                else -> bgColor
                             }
-                            if (isMoveTarget && piece == null) {
-                                Box(modifier = Modifier.size(12.dp).clip(RoundedCornerShape(50)).background(Color.Black.copy(alpha = 0.2f)))
+
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .background(finalBgColor)
+                                    .clickable { viewModel.onSquareClicked(f, r) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val piece = uiState.board[r][f]
+                                if (piece != null) {
+                                    Text(
+                                        text = unicodePieces[piece] ?: "",
+                                        fontSize = 32.sp,
+                                        color = if (piece[0] == 'w') Color.White else Color.Black,
+                                        modifier = Modifier.rotate(if (isFlipped) 180f else 0f) // Keep pieces upright
+                                    )
+                                }
+                                if (isMoveTarget && piece == null) {
+                                    Box(modifier = Modifier.size(12.dp).clip(RoundedCornerShape(50)).background(Color.Black.copy(alpha = 0.2f)))
+                                }
                             }
                         }
                     }
@@ -322,12 +419,12 @@ fun GameScreen(viewModel: GameViewModel, strings: Map<String, String>, onBack: (
 
         Spacer(modifier = Modifier.height(16.dp))
         if (uiState.status.gameOver) {
-            Text(text = "Game Over: ${uiState.status.result}", color = Color.Red, fontSize = 24.sp)
-            Button(onClick = { viewModel.restartGame() }, modifier = Modifier.padding(top = 8.dp)) {
-                Text("Restart Game")
+            Text(text = "Game Over: ${uiState.status.result}", color = Color.Red, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Button(onClick = { viewModel.restartGame() }, modifier = Modifier.padding(top = 16.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E8A08))) {
+                Text("Play Again", color = Color.White)
             }
         } else if (uiState.status.inCheck) {
-            Text(text = "CHECK!", color = Color.Red, fontSize = 24.sp)
+            Text(text = "CHECK!", color = Color.Red, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

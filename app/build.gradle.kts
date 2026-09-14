@@ -13,8 +13,8 @@ android {
         applicationId = "com.karlitodev.meshchess"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -113,6 +113,9 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // Gemini AI
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
 
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)
